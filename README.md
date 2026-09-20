@@ -88,30 +88,37 @@ Counselling is separate, in the same building, and has its own intake process wi
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** How much does it cost to wash and dry laundry in Morrow House?
 
 **Answer:**
 
 ```
+In Morrow House, laundry costs $1.50 for a wash and $1.25 for a dry.
+
+Source: housing_morrow_house_laundry.txt
 ```
 
-**My relevance cutoff:**
+Sources retrieved: `housing_calder_annexe.txt`, `housing_fenwick_court.txt`, `housing_innisfree_hall.txt`, `housing_morrow_house_laundry.txt`, `housing_old_brewhouse.txt`
 
-<!-- The number you set in config.py, and how you got there.
 
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
+**My relevance cutoff:** 0.6 (the starter default — I measured my own distances and found the default already sits cleanly in the gap, so I kept it rather than changing it for the sake of changing it).
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| What happens if I drop a class after week two? | Yes | 0.374 |
+| When can I change my meal plan tier, and what happens if I downgrade? | Yes | 0.192 |
+| How long is the wait at Verrill Street Grill on Friday evenings? | Yes | 0.147 |
+| How much does it cost to wash and dry laundry in Morrow House? | Yes | 0.170 |
+| How many hours a week does PHYS 130 typically take? | Yes | 0.204 |
+| What is the capital of Mongolia? | No | 0.787 |
+| How do I change the oil in a diesel engine? | No | 0.923 |
+| Who won the 1994 World Cup? | No | 0.847 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.824 |
+| How do I write a for loop in Rust? | No | 0.877 |
+
+My five in-corpus questions all landed under 0.38. All five out-of-scope questions landed over 0.78. That's a gap of about 0.4 with nothing in it, so 0.6 sits comfortably in the middle without me having to tune it — a real finding, since it means this corpus is easy for the embedding model to separate cleanly, not something I got right by luck.
+
+
 
 ## How I Used AI
 
