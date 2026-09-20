@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#
 """
 The Unofficial Guide — command line.
 
