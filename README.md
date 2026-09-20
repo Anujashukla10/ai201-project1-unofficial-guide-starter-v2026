@@ -29,54 +29,62 @@
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** paragraph-based, not fixed-character — split on blank-line paragraph breaks, with a 60-character minimum merge (any paragraph shorter than that gets folded into the next one, so a bare heading never becomes its own useless fragment).
 
-<!-- What about YOUR documents made you pick these numbers? Short posts and
-     long sectioned guides don't want the same chunking, and "800 seemed
-     reasonable" earns nothing. Point at something you noticed when you read
-     the documents in Milestone 1.
+**Overlap:** none. Paragraphs already break at natural boundaries, so there's no risk of slicing a sentence in half the way a fixed character window can.
 
-     If you changed your mind partway through, say so and say why. That's worth
-     more than pretending you got it right first time.
+**Result:** the fallback chunker's 800-character window never fired — no post in campus_life reaches 800 characters, so it produced 88 documents -> 88 chunks, one per post, average 317 characters (shortest 178, longest 549). My paragraph-based chunker produces 177 chunks, average 156 characters (shortest 61, longest 397).
 
-     Milestone 3. -->
+**Why:** reading the posts in Milestone 1, most are genuinely one topic and belong as one chunk, but a few pack more than one idea into a single post — the Morrow House post covers both laundry cost and noise levels, for instance. Splitting on paragraphs lets those separate ideas become separate, retrievable chunks instead of one chunk that answers two unrelated questions half as well.
+
+**Tradeoff I found:** a few short heading paragraphs (a course name, a building name) end up as their own chunk, and the paragraph after them loses that context on its own. For example, one chunk from `course_cs_340_exams.txt` just says "Start the term project in week three, not week eight" without naming CS 340 anywhere in that chunk — the course name is in the chunk before it. I decided this was an acceptable cost since the source filename is still cited alongside every answer, so the context isn't actually lost to the person reading the answer, even though it's split across chunks.
 
 ## Sample Chunks
 
-<!-- Five chunks, pasted as text. Label each one and name the file it came from
-     AND the function that produced it — the grader checks your code against
-     what you claim here.
-
-     `python app.py chunks -n 5` prints all three for you. Copy them straight
-     across.
-
-     Milestone 3. -->
-
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `admin_add_drop_deadline.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
+On the add/drop deadline
+
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+
+**Chunk 2** — source: `course_stat_150.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
+STAT 150 Applied Statistics
+
+Transferred in last year, so take this with a grain of salt. Format is flipped: watch the recordings, class time is problem sets. Assessment: three equally weighted midterms, no final. No curve, but the lowest midterm is dropped.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+
+**Chunk 3** — source: `housing_morrow_house.txt#3` — produced by: `chunker.py::split_documents`
 
 ```
+Laundry costs $1.50 wash, $1.25 dry, coin or card. On noise: loud until about 1am on weekends, no enforced quiet hours.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+
+**Chunk 4** — source: `course_cs_340_exams.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+Start the term project in week three, not week eight; everyone learns this the hard way.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+
+This one doesn't name CS 340 on its own — the course name is in the paragraph before it (`#0`). See the tradeoff noted above in Chunking Strategy.
+
+
+**Chunk 5** — source: `health_center.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+Counselling is separate, in the same building, and has its own intake process with a shorter wait than people expect — usually three or four days for a first session.
 ```
+
+"The same building" refers to the health center named in the previous chunk (`#0`) — same issue as Chunk 4.
+
+
 
 ## Sample Answer
 
