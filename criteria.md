@@ -22,9 +22,10 @@ pipeline earns credit; *"80% seemed reasonable"* does not.
 For at least 4 of my 5 test questions, the retrieved chunks include one that
 contains the answer.
 
-**Why this target:**
-<!-- e.g. "One of my questions is about a topic only two documents mention, so
-     I expect that one to be hard." -->
+**Why this target:** One of my five questions (PHYS 130 workload) is close in
+wording to other course-workload posts in my corpus, so I expect retrieval to
+occasionally surface a similar-but-wrong course instead of the right one —
+4 of 5 leaves room for that without treating it as a pass on anything.
 
 ---
 
@@ -32,9 +33,11 @@ contains the answer.
 
 Every answer the system produces names at least one source document.
 
-**Why this target:**
-<!-- Why all five and not four? What about your setup makes that achievable —
-     or what would have to go wrong for it not to be? -->
+**Why this target:** This is 5 of 5, not 4 of 5, because the grounding
+instruction in generate.py explicitly tells the model to name the filename
+every time, and the chunks it's given always carry a source field — nothing
+in my pipeline should let an answer skip this, so anything less than 5 of 5
+would mean the instruction itself is being ignored, not just a hard question.
 
 ---
 
@@ -44,15 +47,12 @@ When I ask a question my documents clearly don't cover, the relevance gate
 stops it and the system returns "I don't have enough information about that" —
 in at least 4 of 5 tries.
 
-<!-- The five questions are the ones in `OUT_OF_SCOPE` at the bottom of
-     `questions.py`, and `run_eval.py` puts them through the gate and writes
-     what happened into your run log. Swap them for your own if you'd rather —
-     just keep five of them, or the "4 of 5" above has nothing to be 4 of. -->
-
-**Why this target:**
-<!-- What did your distances look like when you set the cutoff in Milestone 4?
-     Was there a clean gap, or did the two groups overlap? -->
-
+**Why this target:** When I measured this in Milestone 4, my five in-corpus
+questions all landed under 0.38 best distance, and my five out-of-scope
+questions all landed over 0.78 — a clean 0.4-wide gap with the 0.6 cutoff
+sitting in the middle. Given that gap, I'd actually expect 5 of 5, but I'm
+keeping the target at 4 of 5 since I only tested five out-of-scope questions
+and don't want to claim more certainty than five data points support.
 ---
 
 ## 4. Chunks stay on one topic
