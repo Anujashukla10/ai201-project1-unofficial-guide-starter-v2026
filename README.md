@@ -27,6 +27,13 @@
 
      Milestone 5. -->
 
+This is a question-answering system for the `campus_life` corpus — 88 short
+posts about student life, covering things like course workloads, dining hall
+wait times, housing logistics, add/drop deadlines, and dorm-specific costs
+like laundry. You ask it a plain question and it retrieves the most relevant
+chunks, answers using only what's in those chunks, and names the source file.
+If you ask something the corpus doesn't cover, it says so instead of guessing.
+
 ## Chunking Strategy
 
 **Chunk size:** paragraph-based, not fixed-character — split on blank-line paragraph breaks, with a 60-character minimum merge (any paragraph shorter than that gets folded into the next one, so a bare heading never becomes its own useless fragment).
@@ -122,18 +129,21 @@ My five in-corpus questions all landed under 0.38. All five out-of-scope questio
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1.** I asked Claude to write a chunking function based on what I noticed
+in Milestone 1 — that my posts are short and the 800-character fallback
+never splits them. It gave me a plain paragraph splitter, but the first
+version I ran produced useless one-line chunks for bare headings like
+"STAT 150 Applied Statistics" with nothing under them. I added the
+60-character minimum-merge myself so a short heading paragraph gets folded
+into the next one instead of becoming its own fragment.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
+**2.** I asked Claude to check my Milestone 2 acceptance criteria by having
+it try to test each one using only the sentence as written. It couldn't
+generate a fully unambiguous test for my chunk-quality criterion ("covers
+exactly one venue, course, or policy") since judging "one topic" still
+requires some human judgment at the edges — I kept the criterion but noted
+that limitation myself rather than rewriting it to sound more precise than
+it actually is.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
