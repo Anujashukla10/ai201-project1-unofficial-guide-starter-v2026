@@ -55,43 +55,41 @@ in at least 4 of 5 tries.
 
 ---
 
-## 4. Something about your chunks
+## 4. Chunks stay on one topic
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know if your chunks were the right size? Name something
-     countable or observable.
-
-     Examples of the right shape — don't copy these, they should come from
-     what you actually saw in Milestone 3:
-       - "At least 4 of 5 sampled chunks read as a complete thought, with no
-          sentence cut in half at either end."
-       - "No chunk is shorter than 200 characters, since anything below that
-          in my corpus turned out to be a heading with no content under it." -->
+For at least 4 of 5 sampled chunks (`python app.py chunks -n 5`), the chunk
+covers exactly one venue, course, or policy — not two unrelated topics
+folded into one chunk.
 
 
 
 **Why this target:**
 
+My documents are already short (most under 800
+characters), so the fallback chunker doesn't split most of them at all —
+each post becomes one chunk. That's fine when a post is genuinely one
+topic (like North Kitchen), but a few posts pack a heading, a caveat, and
+a logistics note together (like the laundry post), and I want to check
+that bundling doesn't blur into mixing two different subjects.
 
 
 ---
 
-## 5. Your choice
+## 5. Specific numbers come through correctly
 
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. It could be about
-     speed, about refusals, about a particular kind of question your corpus
-     handles badly, about source attribution being correct rather than merely
-     present — anything, as long as it names a number or an observable
-     outcome. -->
+For at least 4 of 5 test questions that ask about a number (a cost, a wait
+time, an hour range), the answer states the exact same number that appears
+in the source chunk — not a rounded, garbled, or invented figure.
 
 
 
 **Why this target:**
 
-
+Almost every document in campus_life carries a
+concrete number — $1.50 for laundry, 30 minutes for a Friday wait, 7 hours
+a week for PHYS 130 — and a plausible-sounding wrong number (say, "$1"
+instead of "$1.50") would be a worse failure than a vague answer, because
+it's easy to trust and hard to notice.
 
 ---
 
