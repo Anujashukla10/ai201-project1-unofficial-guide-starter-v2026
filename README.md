@@ -320,29 +320,29 @@ answers were already in one clean chunk.
 
 ## What's Still Broken
 
-Criterion 4 is still at exactly 4/5, unchanged from before my fix. 
-`housing_morrow_house.txt#3` still bundles laundry cost and noise into one 
-chunk, because my topic-shift split and my 60-character minimum-merge work 
-against each other: the split creates two short pieces, and the merge 
-immediately recombines them since neither reaches 60 characters alone.
+After the second improvement, all five criteria are MET, including criterion 4 
+at 5/5 — nothing from my original five criteria is currently missed.
 
-What I'd try next: don't let the merge step re-join pieces that came from a 
-topic-shift split — only apply the minimum-merge to paragraphs that were 
-never split in the first place. That keeps the merge doing its original job 
-(folding bare headings into real content) without undoing the new split. I 
-stopped here because diagnosing why the fix didn't work, and reporting it 
-honestly, felt more valuable than quickly patching the threshold without 
-understanding the interaction — a rushed second fix risked breaking the 
-92% of chunks that were already working correctly.
+That said, I wouldn't call the chunker finished. My topic-shift split only 
+catches one specific pattern (`". On "`), found by looking at one file. I 
+haven't checked whether other posts use a similar inline sub-topic marker with 
+different wording (e.g. "The catch:" or "Also:") that this split wouldn't 
+catch. I stopped here because this was the one pattern my Milestone 1 sample 
+actually surfaced, and searching for every possible inline marker across all 
+88 documents felt like over-fitting to a five-chunk sample rather than a 
+targeted fix — a broader fix would need a larger, more deliberate sample of 
+"failing" chunks first, which is more than this unit's scope.
 
 ## What I'd Do Differently
 
 I'd tighten criterion 4's target from "4 of 5" to "5 of 5" from the start. 
 A 4/5 target meant a single known weak spot in my chunker could still pass, 
 which is exactly what happened — the criterion never actually forced me to 
-fix the bundling issue, it just let me document it. A 5/5 target would have 
-made this a real MISS in Milestone 1 rather than a MET-with-an-asterisk, 
-and that would have been a more honest signal to act on.
+fix the bundling issue on the first attempt, it just let me document it. A 
+5/5 target would have made this a real MISS in Milestone 1 rather than a 
+MET-with-an-asterisk, and that would have been a more honest signal to act on 
+sooner. (It did eventually get fixed, with my second improvement — but only 
+because I chose to chase it, not because the criterion demanded it.)
 
 I'd also write criterion 4 to test the interaction directly rather than 
 sampling 5 chunks and eyeballing them — something like "no chunk contains 
