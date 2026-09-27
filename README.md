@@ -254,34 +254,45 @@ random noise.
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** Added a topic-shift split in `chunker.py::split_documents` 
+that splits a paragraph on the pattern `". On "` (e.g. "...coin or card. On 
+noise: loud...") before the existing paragraph/merge logic runs, so inline 
+sub-topics without a blank-line break get separated.
 
-**Why I picked it:**
-
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+**Why I picked it:** My Milestone 3 diagnosis found that 
+`housing_morrow_house.txt#3` bundles laundry cost and noise level into one 
+chunk because the post uses "On noise:" as an inline sub-heading with no 
+blank line before it — this pattern repeats elsewhere in the corpus 
+("On the meal plan changes"), so I expected splitting on it to fix this 
+whole family of cases, not just one file.
 
 ### Run Log — After
 
 <!-- Same format, same five criteria, three runs each.
      `python run_eval.py --label after` -->
 
+
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Chunks stay on one topic | 4 of 5 | 4/5 | 4/5 | 4/5 | MET |
+| 5. Specific numbers come through correctly | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
-**Did it help?**
-
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
-
-     Milestone 4. -->
+**Did it help?** No — not for the case it targeted. Chunk count only rose 
+from 177 to 178 across the whole corpus (one net split, not the whole family 
+of "On X:" patterns I expected). Looking at `housing_morrow_house.txt#3` 
+directly: the topic-shift split did fire — the chunk text now shows "Laundry 
+costs..." and "On noise:..." separated by a blank line internally — but both 
+halves are short (51 and 70 characters), so my existing 60-character 
+minimum-merge immediately recombined them back into a single chunk. The two 
+changes worked against each other: the split I added to separate topics was 
+undone by the merge I'd already built to avoid fragments. Criterion 4 stayed 
+at exactly 4/5, identical to before — no regression, but no improvement 
+either. Every other criterion (1, 2, 3, 5) also came out identical across 
+both run logs, confirming the change didn't break anything else, it just 
+didn't accomplish what I intended.
 
 ## What's Still Broken
 

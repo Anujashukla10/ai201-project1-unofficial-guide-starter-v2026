@@ -82,23 +82,32 @@ def fallback_split(
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Paragraph-based splitting with a minimum-length merge.
+    Paragraph-based splitting with a minimum-length merge, plus a topic-shift
+    split for inline sub-topics that don't have a blank line before them.
 
-    campus_life posts are short (all under 550 characters in this corpus),
-    so a fixed character window never fires — the fallback chunker proved
-    that (88 documents -> 88 chunks). Most posts are genuinely one topic and
-    should stay one chunk. But some posts open with a bare heading line
-    ("Laundry in Morrow House") that would be a useless fragment on its own,
-    and a few pack a fact and a separate tip into the same post. This
-    function keeps headings attached to the paragraph after them, and only
-    splits a post into more than one chunk when both resulting pieces are
-    long enough to stand alone.
+    Milestone 1 of unit 2 found one chunk (housing_morrow_house.txt#3) that
+    bundled laundry cost and noise level into a single chunk, because the
+    post uses "On noise:" as an inline sub-heading with no blank-line break
+    before it. Several posts in this corpus reuse "On X:" this way (e.g.
+    "On the meal plan changes"), so splitting on that pattern -- in addition
+    to blank-line paragraphs -- should catch that whole family of cases, not
+    just this one file.
     """
-    MIN_CHARS = 60  # below this, a paragraph reads as a fragment, not a thought
+    MIN_CHARS = 60
+    TOPIC_SHIFT = ". On "  # inline sub-topic marker used across this corpus
 
     chunks: list[Chunk] = []
     for doc in documents:
-        paragraphs = [p.strip() for p in doc.text.split("\n\n") if p.strip()]
+        raw_paragraphs = [p.strip() for p in doc.text.split("\n\n") if p.strip()]
+
+        paragraphs: list[str] = []
+        for para in raw_paragraphs:
+            if TOPIC_SHIFT in para:
+                first, rest = para.split(TOPIC_SHIFT, 1)
+                paragraphs.append(first.strip() + ".")
+                paragraphs.append("On " + rest.strip())
+            else:
+                paragraphs.append(para)
 
         merged: list[str] = []
         buffer = ""
