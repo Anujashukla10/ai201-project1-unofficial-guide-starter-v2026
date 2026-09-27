@@ -173,15 +173,30 @@ it actually is.
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Chunks stay on one topic | 4 of 5 | 4/5 | 4/5 | 4/5 | MET |
+| 5. Specific numbers come through correctly | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+### Real output — criterion 1 and 5, from run 1
+
+**Question:** How much does it cost to wash and dry laundry in Morrow House?
+Produced by `store.py::search` (retrieval) and `generate.py::answer_from_chunks` (generation).
+```
+In Morrow House, laundry costs $1.50 to wash and $1.25 to dry (housing_morrow_house_laundry.txt).
+```
+
+Best distance: 0.1698. Source retrieved and cited: `housing_morrow_house_laundry.txt`, which contains the exact figure the answer states.
+
+### Real output — criterion 4, from `chunker.py::split_documents`
+```
+Laundry costs $1.50 wash, $1.25 dry, coin or card. On noise: loud until about 1am on weekends, no enforced quiet hours.
+```
+Source: `housing_morrow_house.txt#3`. This chunk fails criterion 4 — it bundles laundry cost and noise level, two separate topics, into one chunk.
 
 ## Verdicts
 
@@ -196,11 +211,11 @@ it actually is.
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | All 5 questions, all 3 runs, had their answer inside a retrieved chunk — exceeded the 4/5 target every time. |
+| 2 | Every answer names a source | MET | Every one of the 15 answers (5 questions × 3 runs) named at least one real source file that actually contained the fact. |
+| 3 | Gate stops out-of-corpus questions | MET | All 5 out-of-scope questions were refused, well above the 4/5 target, with distances (0.79–0.92) far past the 0.6 cutoff. |
+| 4 | Chunks stay on one topic | MET | 4 of 5 sampled chunks cover one topic. The fifth (`housing_morrow_house.txt#3`) bundles laundry cost and noise into one chunk — exactly at the 4/5 target, not above it. |
+| 5 | Specific numbers come through correctly | MET | All 5 questions, all 3 runs, stated the exact figure from `expects` with no rounding or invention. |
 
 ## Diagnoses
 
@@ -221,6 +236,21 @@ it actually is.
      low, and which one you'd tighten and to what.
 
      Milestone 3. -->
+I missed nothing this round. All five criteria met their targets across all three runs.
+
+Honestly, one target was set at the edge rather than with room to spare:
+criterion 4 hit exactly 4/5, not higher, because `housing_morrow_house.txt#3`
+bundles two topics (laundry cost and noise) into one chunk. My chunker only
+splits on blank-line paragraph breaks, and this post states "On noise:" as an
+inline sub-topic marker without a blank line before it — so my paragraph-based
+split doesn't catch it. If I'd sampled a different 5 chunks, or if my corpus
+had more posts shaped this way, this criterion could easily have come out at
+3/5 and missed.
+
+I'd tighten criterion 4 next time to "5 of 5 sampled chunks cover exactly one
+topic" — a 4/5 target left no room to tell a fluke from a real problem, and
+this run shows the chunker has a specific, fixable weak spot rather than
+random noise.
 
 ## The Improvement
 
