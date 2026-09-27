@@ -296,17 +296,32 @@ didn't accomplish what I intended.
 
 ## What's Still Broken
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
+Criterion 4 is still at exactly 4/5, unchanged from before my fix. 
+`housing_morrow_house.txt#3` still bundles laundry cost and noise into one 
+chunk, because my topic-shift split and my 60-character minimum-merge work 
+against each other: the split creates two short pieces, and the merge 
+immediately recombines them since neither reaches 60 characters alone.
 
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
-
-     Milestone 5. -->
+What I'd try next: don't let the merge step re-join pieces that came from a 
+topic-shift split — only apply the minimum-merge to paragraphs that were 
+never split in the first place. That keeps the merge doing its original job 
+(folding bare headings into real content) without undoing the new split. I 
+stopped here because diagnosing why the fix didn't work, and reporting it 
+honestly, felt more valuable than quickly patching the threshold without 
+understanding the interaction — a rushed second fix risked breaking the 
+92% of chunks that were already working correctly.
 
 ## What I'd Do Differently
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
+I'd tighten criterion 4's target from "4 of 5" to "5 of 5" from the start. 
+A 4/5 target meant a single known weak spot in my chunker could still pass, 
+which is exactly what happened — the criterion never actually forced me to 
+fix the bundling issue, it just let me document it. A 5/5 target would have 
+made this a real MISS in Milestone 1 rather than a MET-with-an-asterisk, 
+and that would have been a more honest signal to act on.
 
-     Milestone 5. -->
+I'd also write criterion 4 to test the interaction directly rather than 
+sampling 5 chunks and eyeballing them — something like "no chunk contains 
+both a cost figure and an unrelated qualitative claim (like noise level)" 
+would have caught this specific bundling pattern by rule rather than by 
+luck of which 5 chunks got sampled.
