@@ -280,19 +280,43 @@ whole family of cases, not just one file.
 | 4. Chunks stay on one topic | 4 of 5 | 4/5 | 4/5 | 4/5 | MET |
 | 5. Specific numbers come through correctly | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
-**Did it help?** No — not for the case it targeted. Chunk count only rose 
-from 177 to 178 across the whole corpus (one net split, not the whole family 
-of "On X:" patterns I expected). Looking at `housing_morrow_house.txt#3` 
-directly: the topic-shift split did fire — the chunk text now shows "Laundry 
-costs..." and "On noise:..." separated by a blank line internally — but both 
-halves are short (51 and 70 characters), so my existing 60-character 
-minimum-merge immediately recombined them back into a single chunk. The two 
-changes worked against each other: the split I added to separate topics was 
-undone by the merge I'd already built to avoid fragments. Criterion 4 stayed 
-at exactly 4/5, identical to before — no regression, but no improvement 
-either. Every other criterion (1, 2, 3, 5) also came out identical across 
-both run logs, confirming the change didn't break anything else, it just 
-didn't accomplish what I intended.
+**Stretch: a second improvement.** Before building it, I'm declaring I'll try 
+fixing the merge/split interaction I diagnosed above — keeping the minimum-merge 
+from re-absorbing pieces that came from a topic-shift split.
+
+### Run Log — After 2
+
+**What I changed:** Modified `chunker.py::split_documents` so a paragraph 
+produced by the topic-shift split is flushed to its own chunk immediately, 
+instead of re-entering the same merge buffer that folds short headings into 
+following content. The split and the merge previously shared one buffer, which 
+is why the first fix's split got undone.
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Chunks stay on one topic | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Specific numbers come through correctly | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+### Real output confirming the fix — `chunker.py::split_documents`, `--from-doc housing_morrow_house.txt`
+
+```
+Chunk #3: Laundry costs $1.50 wash, $1.25 dry, coin or card.
+
+Chunk #4: On noise: loud until about 1am on weekends, no enforced quiet hours.
+```
+
+**Did it help?** Yes. Chunk count rose from 178 (after the first fix) to 185 
+(+7), compared to only +1 chunk from the first attempt — evidence the 
+merge/split conflict was a real, general bug, not a one-off. Directly checking 
+`housing_morrow_house.txt` confirms the exact case I diagnosed: laundry cost 
+and noise are now two separate chunks (`#3` and `#4`) instead of one bundled 
+chunk. Criterion 4 moved from 4/5 to 5/5 across all three runs. Every other 
+criterion (1, 2, 3, 5) stayed identical to both prior logs — the fix only 
+touched chunk boundaries, so it didn't disturb retrieval for questions whose 
+answers were already in one clean chunk.
 
 ## What's Still Broken
 

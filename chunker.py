@@ -81,38 +81,32 @@ def fallback_split(
 
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
-    """
-    Paragraph-based splitting with a minimum-length merge, plus a topic-shift
-    split for inline sub-topics that don't have a blank line before them.
-
-    Milestone 1 of unit 2 found one chunk (housing_morrow_house.txt#3) that
-    bundled laundry cost and noise level into a single chunk, because the
-    post uses "On noise:" as an inline sub-heading with no blank-line break
-    before it. Several posts in this corpus reuse "On X:" this way (e.g.
-    "On the meal plan changes"), so splitting on that pattern -- in addition
-    to blank-line paragraphs -- should catch that whole family of cases, not
-    just this one file.
-    """
     MIN_CHARS = 60
-    TOPIC_SHIFT = ". On "  # inline sub-topic marker used across this corpus
+    TOPIC_SHIFT = ". On "
 
     chunks: list[Chunk] = []
     for doc in documents:
         raw_paragraphs = [p.strip() for p in doc.text.split("\n\n") if p.strip()]
 
-        paragraphs: list[str] = []
+        paragraphs: list[tuple[str, bool]] = []
         for para in raw_paragraphs:
             if TOPIC_SHIFT in para:
                 first, rest = para.split(TOPIC_SHIFT, 1)
-                paragraphs.append(first.strip() + ".")
-                paragraphs.append("On " + rest.strip())
+                paragraphs.append((first.strip() + ".", True))
+                paragraphs.append(("On " + rest.strip(), True))
             else:
-                paragraphs.append(para)
+                paragraphs.append((para, False))
 
         merged: list[str] = []
         buffer = ""
-        for para in paragraphs:
-            buffer = f"{buffer}\n\n{para}" if buffer else para
+        for text, from_split in paragraphs:
+            if from_split:
+                if buffer:
+                    merged.append(buffer)
+                    buffer = ""
+                merged.append(text)
+                continue
+            buffer = f"{buffer}\n\n{text}" if buffer else text
             if len(buffer) >= MIN_CHARS:
                 merged.append(buffer)
                 buffer = ""
@@ -133,7 +127,6 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
             )
 
     return chunks
-
 
 def describe(chunks: list[Chunk]) -> str:
     """A one-line summary, printed after indexing."""
